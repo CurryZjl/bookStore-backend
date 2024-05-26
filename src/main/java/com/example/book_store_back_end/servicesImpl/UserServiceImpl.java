@@ -30,7 +30,6 @@ public class UserServiceImpl implements UserServive {
                 .email(user.getEmail())
                 .introduction(user.getIntroduction())
                 .name(user.getName())
-                .password(user.getPassword())
                 .build();
     }
 }

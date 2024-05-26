@@ -7,6 +7,7 @@ import com.example.book_store_back_end.entity.CartItem;
 import com.example.book_store_back_end.repositories.CartItemRepository;
 import com.example.book_store_back_end.services.BookService;
 import com.example.book_store_back_end.services.CartItemService;
+import com.example.book_store_back_end.utils.SessionUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -87,7 +88,7 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     private CartItem mapToCart(CartItemDto cartItemDto){
-        final long uid = 1L; //TODO::添加购物车书籍 拿取请求用户的uid
+        final long uid = SessionUtils.getCurrentAuthUid();
         return CartItem.builder()
                 .book(Book.builder().bid(cartItemDto.getBookDto().getBid()).build())
                 .amount(cartItemDto.getAmount())

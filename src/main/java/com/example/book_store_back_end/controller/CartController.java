@@ -5,6 +5,7 @@ import com.example.book_store_back_end.dto.CartItemDto;
 import com.example.book_store_back_end.dto.ResponseDto;
 import com.example.book_store_back_end.services.BookService;
 import com.example.book_store_back_end.services.CartItemService;
+import com.example.book_store_back_end.utils.SessionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,14 +22,18 @@ public class CartController {
     @GetMapping
     public ResponseDto<List<CartItemDto>> getCartBooks(){
         //从数据库获取所有书籍信息
-        final long uid = 1L;
-        List<CartItemDto> cartItemDtos = this.cartItemService.findCartItemsByUid(uid);
-        if(!cartItemDtos.isEmpty()){
+        final long uid = SessionUtils.getCurrentAuthUid();
+        if(uid == -1){
+            return new ResponseDto<>(false, "Auth error", null);
+        }
+        try{
+            List<CartItemDto> cartItemDtos = this.cartItemService.findCartItemsByUid(uid);
             return new ResponseDto<>(true,"GET OK", cartItemDtos);
+        }catch (Exception e){
+            return new ResponseDto<>(false,"GET ERROR", null);
         }
-        else {
-            return new ResponseDto<>(false, "No CartBooks", cartItemDtos);
-        }
+
+
     }
 
     @PatchMapping("/{cid}")
@@ -44,7 +49,10 @@ public class CartController {
 
     @PutMapping
     public ResponseDto<CartItemDto> addNewCartItemAmount(@RequestBody long bid){
-        final  long uid = 1L; //TODO
+        final  long uid = SessionUtils.getCurrentAuthUid();
+        if(uid == -1){
+            return new ResponseDto<>(false , "Auth fault", null);
+        }
         boolean res = this.cartItemService.existsByBook_BidAndUid(bid, uid);
         if(!res){
             BookDto bookDto = BookDto.builder().bid(bid).build();

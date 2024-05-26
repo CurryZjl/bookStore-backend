@@ -1,5 +1,6 @@
 package com.example.book_store_back_end.servicesImpl;
 
+import com.example.book_store_back_end.dao.BookDao;
 import com.example.book_store_back_end.dto.BookDto;
 import com.example.book_store_back_end.dto.BookInOrderDto;
 import com.example.book_store_back_end.entity.Book;
@@ -18,17 +19,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class BookServiceImpl implements BookService {
-    private final BookRepository bookRepository;
+    private final BookDao bookDao;
     private final TagRepository tagRepository;
 
-    public BookServiceImpl(BookRepository bookRepository, TagRepository tagRepository){
-        this.bookRepository = bookRepository;
+    public BookServiceImpl(BookDao bookDao, TagRepository tagRepository) {
+        this.bookDao = bookDao;
         this.tagRepository = tagRepository;
     }
 
     @Override
     public List<BookDto> findAll() {
-        List<Book> books = bookRepository.findAll();
+        List<Book> books = bookDao.findAll();
         return books.stream()
                 .map(book -> {
                     List<Book> books1 = new ArrayList<>();
@@ -41,7 +42,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Optional<BookDto> findBookByBid(long id) {
-        Optional<Book> book = bookRepository.findBookByBid(id);
+        Optional<Book> book = bookDao.findBookByBid(id);
         return book.map(book1 -> {
             List<Book> bookList = new ArrayList<>();
             bookList.add(book1);
@@ -52,7 +53,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookInOrderDto findBookByOrderItems(List<OrderItem> orderItems) {
-        Book book = bookRepository.findBookByOrderItems(orderItems);
+        Book book = bookDao.findBookByOrderItems(orderItems);
         return mapToBookInOrderDto(book);
     }
 

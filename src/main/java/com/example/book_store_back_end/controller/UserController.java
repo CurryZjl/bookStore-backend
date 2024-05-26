@@ -4,6 +4,8 @@ import com.example.book_store_back_end.dto.ResponseDto;
 import com.example.book_store_back_end.dto.UserDto;
 import com.example.book_store_back_end.entity.User;
 import com.example.book_store_back_end.services.UserServive;
+import com.example.book_store_back_end.utils.SessionUtils;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +23,10 @@ public class UserController {
 
     @GetMapping
     public ResponseDto<UserDto> getProfile(){
-        long uid = 1; //TODO::增加身份验证之后就能直接拿到发来请求的uid
+        long uid = SessionUtils.getCurrentAuthUid();
+        if(uid == -1){
+            return new ResponseDto<>(false,"Auth fault", null);
+        }
         Optional<UserDto> res = userServive.getUserByUid(uid);
         if(res.isPresent()){
             return new ResponseDto<>(true,"GET OK" , res.get());

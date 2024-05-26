@@ -26,7 +26,10 @@ public class User {
     private String email;
     private String introduction;
     private String avatarSrc;
-    private String password;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserAuth userAuth;
+
     @CreationTimestamp
     private LocalDateTime createOn;
     @UpdateTimestamp

@@ -8,6 +8,7 @@ import com.example.book_store_back_end.dto.Message;
 import com.example.book_store_back_end.entity.OrderItem;
 import com.example.book_store_back_end.services.OrderItemService;
 import com.example.book_store_back_end.services.OrderService;
+import com.example.book_store_back_end.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,10 @@ public class OrderController {
 
     @GetMapping()
     public ResponseDto<List<OrderDto>> getOrders(){
-        final long uid = 1L;
+        final long uid = SessionUtils.getCurrentAuthUid();
+        if(uid == -1){
+            return new ResponseDto<>(false,"Auth ERROR", null);
+        }
         try {
             List<OrderDto> orderDtos = orderService.getOrdersByUid(uid);
             return new ResponseDto<>(true,"GET OK",orderDtos);
@@ -39,8 +43,11 @@ public class OrderController {
 
     @PostMapping
     public ResponseDto<OrderDto> postOrders(@RequestBody OrderDto orderInfo){
-        //TODO::辨别身份
-        orderInfo.setUid(1L);
+        final long uid = SessionUtils.getCurrentAuthUid();
+        if(uid == -1){
+            return new ResponseDto<>(false,"Auth ERROR", null);
+        }
+        orderInfo.setUid(uid);
         long newOid = orderService.createOrder(orderInfo);
         if(newOid != -1){
             /* 成功创建订单信息 */

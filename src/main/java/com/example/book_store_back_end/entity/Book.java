@@ -36,6 +36,9 @@ public class Book{
     @OneToMany(mappedBy = "book",cascade = CascadeType.ALL) //级联 如果删除一个book，那么含有这个bookID的orderItem也会被删除
     private List<OrderItem> orderItems;
 
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<CartItem> cartItems;
+
     @CreationTimestamp
     private LocalDateTime createOn;
     @UpdateTimestamp
