@@ -17,7 +17,7 @@ public class SessionInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("uid") != null) {
-            System.out.println("Session is already logged in");
+            //System.out.println("Session is already logged in");
             return true;
         }
         System.out.println("Session is not logged in yet");

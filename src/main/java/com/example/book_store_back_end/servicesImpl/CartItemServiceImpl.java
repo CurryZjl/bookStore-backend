@@ -65,16 +65,6 @@ public class CartItemServiceImpl implements CartItemService {
         return this.cartItemRepository.existsByBook_BidAndUid(bid, uid);
     }
 
-    private  CartItemDto mapToCartItemDto(CartItem cartItem){
-        Optional<BookDto> bookDto = this.bookService.findBookByBid(cartItem.getBook().getBid());
-        if(bookDto.isEmpty()) return CartItemDto.builder().build();  /* Controls never reach here */
-        return CartItemDto.builder()
-                .bookDto(bookDto.get())
-                .cid(cartItem.getCid())
-                .amount(cartItem.getAmount())
-                .build();
-    }
-
     @Override
     public boolean updateCartItemAmount(long cid, long newAmount) {
         Optional<CartItem> cartItem = this.cartItemRepository.findById(cid);
@@ -86,6 +76,16 @@ public class CartItemServiceImpl implements CartItemService {
         }
         return false;
     }
+    private  CartItemDto mapToCartItemDto(CartItem cartItem){
+        Optional<BookDto> bookDto = this.bookService.findBookByBid(cartItem.getBook().getBid());
+        if(bookDto.isEmpty()) return CartItemDto.builder().build();  /* Controls never reach here */
+        return CartItemDto.builder()
+                .bookDto(bookDto.get())
+                .cid(cartItem.getCid())
+                .amount(cartItem.getAmount())
+                .build();
+    }
+
 
     private CartItem mapToCart(CartItemDto cartItemDto){
         final long uid = SessionUtils.getCurrentAuthUid();

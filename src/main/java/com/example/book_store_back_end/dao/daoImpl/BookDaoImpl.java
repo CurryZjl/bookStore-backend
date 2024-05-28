@@ -24,11 +24,6 @@ public class BookDaoImpl implements BookDao {
     }
 
     @Override
-    public Book findBookByOrderItems(List<OrderItem> orderItems) {
-        return bookRepository.findBookByOrderItems(orderItems);
-    }
-
-    @Override
     public List<Book> findAll() {
         return bookRepository.findAll();
     }

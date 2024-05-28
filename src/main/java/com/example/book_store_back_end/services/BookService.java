@@ -11,6 +11,6 @@ import java.util.Optional;
 @Service
 public interface BookService {
     Optional<BookDto> findBookByBid(long id);
-    BookInOrderDto findBookByOrderItems(List<OrderItem> orderItems);
     List<BookDto> findAll();
+    boolean updateBookStatus(long bid, long newStatus);
 }

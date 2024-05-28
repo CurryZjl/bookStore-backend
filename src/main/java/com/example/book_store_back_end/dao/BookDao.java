@@ -8,6 +8,5 @@ import java.util.Optional;
 
 public interface BookDao {
     Optional<Book> findBookByBid(long id);
-    Book findBookByOrderItems(List<OrderItem> orderItems);
     List<Book> findAll();
 }

@@ -21,8 +21,8 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Optional<Long> findUidByEmail(String email) {
-        return userRepository.findUidByEmail(email);
+    public Optional<Long> findUidByName(String name) {
+        return userRepository.findUidByName(name);
     }
 
 }

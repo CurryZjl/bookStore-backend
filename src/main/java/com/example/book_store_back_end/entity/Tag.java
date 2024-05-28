@@ -1,6 +1,7 @@
 package com.example.book_store_back_end.entity;
 
 import com.example.book_store_back_end.entity.Book;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,7 @@ public class Tag {
     private long tid;
     private String name;
 
-    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Book> books;
 
     @CreationTimestamp

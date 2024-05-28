@@ -1,12 +1,7 @@
 package com.example.book_store_back_end.controller;
 
 import com.example.book_store_back_end.dto.OrderDto;
-import com.example.book_store_back_end.dto.OrderItemDto;
 import com.example.book_store_back_end.dto.ResponseDto;
-import com.example.book_store_back_end.entity.Order;
-import com.example.book_store_back_end.dto.Message;
-import com.example.book_store_back_end.entity.OrderItem;
-import com.example.book_store_back_end.services.OrderItemService;
 import com.example.book_store_back_end.services.OrderService;
 import com.example.book_store_back_end.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +13,11 @@ import java.util.List;
 @RequestMapping("/api/orders")
 public class OrderController {
     private final OrderService orderService;
-    private final OrderItemService orderItemService;
 
     @Autowired
-    public OrderController(OrderService orderService, OrderItemService orderItemService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
-        this.orderItemService = orderItemService;
     }
-
 
     @GetMapping()
     public ResponseDto<List<OrderDto>> getOrders(){
@@ -51,11 +43,6 @@ public class OrderController {
         long newOid = orderService.createOrder(orderInfo);
         if(newOid != -1){
             /* 成功创建订单信息 */
-            List<OrderItemDto> orderItemDtos = orderInfo.getOrderItems();
-            orderItemDtos.stream().forEachOrdered(orderItemDto -> {
-                orderItemDto.setOid(newOid);
-            });
-            this.orderItemService.createOrderItems(orderItemDtos);
             return new ResponseDto<>(true, "订单提交成功", orderInfo);
         }else{
             /* 订单信息创建失败 */

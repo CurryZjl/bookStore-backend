@@ -3,6 +3,7 @@ import com.example.book_store_back_end.dto.BookDto;
 import com.example.book_store_back_end.dto.CartItemDto;
 import com.example.book_store_back_end.dto.ResponseDto;
 import com.example.book_store_back_end.entity.Book;
+import com.example.book_store_back_end.repositories.BookRepository;
 import com.example.book_store_back_end.services.BookService;
 import com.example.book_store_back_end.services.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
-   private final BookService bookService;
-
-   @Autowired
+    private final BookService bookService;
+    @Autowired
     public BookController(BookService bookService) {
        this.bookService = bookService;
     }
-
 
     @GetMapping("/{id}")
     public ResponseDto<BookDto> getBookById(@PathVariable long id){

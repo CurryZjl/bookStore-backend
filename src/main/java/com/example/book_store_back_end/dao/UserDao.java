@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface UserDao {
     Optional<User> findUserByUid(long uid);
 
-    Optional<Long> findUidByEmail(String email);
+    Optional<Long> findUidByName(String name);
 }

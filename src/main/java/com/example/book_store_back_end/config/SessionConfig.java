@@ -16,7 +16,9 @@ public class SessionConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionInterceptor)
                 .addPathPatterns("/**")  //拦截所有请求
-                .excludePathPatterns("/api/auth/login"); //但是除了login的 也就是login直接去了controller
+                .excludePathPatterns("/api/auth/user")
+                .excludePathPatterns("/api/auth/user/name")
+                .excludePathPatterns("/api/auth/login");
     }
 
     @Override

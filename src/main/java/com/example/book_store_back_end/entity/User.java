@@ -22,7 +22,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long uid;
     private String name;
-    private int level;
+
+    @Column(nullable = false, columnDefinition = "int")
+    private int level = 1;
     private String email;
     private String introduction;
     private String avatarSrc;

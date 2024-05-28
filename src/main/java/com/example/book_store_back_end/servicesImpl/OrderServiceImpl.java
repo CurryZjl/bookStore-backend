@@ -3,12 +3,14 @@ package com.example.book_store_back_end.servicesImpl;
 import com.example.book_store_back_end.dto.OrderDto;
 import com.example.book_store_back_end.dto.OrderItemDto;
 import com.example.book_store_back_end.entity.Order;
+import com.example.book_store_back_end.entity.OrderItem;
 import com.example.book_store_back_end.repositories.OrderRepository;
-import com.example.book_store_back_end.services.OrderItemService;
 import com.example.book_store_back_end.services.OrderService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,12 +18,9 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
 
-    private final OrderItemService orderItemService;
-
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, OrderItemService orderItemService) {
+    public OrderServiceImpl(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
-        this.orderItemService = orderItemService;
     }
 
     @Override
@@ -31,6 +30,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(this::mapToOrderDto).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public long createOrder(OrderDto orderDto) {
        try{
@@ -44,7 +44,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderDto mapToOrderDto(Order order){
-        List<OrderItemDto> orderItemDtos = orderItemService.getOrderItemsByOrder(order);
+        List<OrderItemDto> orderItemDtos = order.getOrderItems().stream()
+                .map(OrderItemMapper::mapToOrderItemDto)
+                .collect(Collectors.toList());
         return OrderDto.builder()
                 .uid(order.getUid())
                 .receiver(order.getReceiver())
@@ -57,13 +59,27 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
-    private Order  mapToOrder(OrderDto orderDto){
-        return Order.builder()
+    private Order mapToOrder(OrderDto orderDto) {
+        Order order = Order.builder()
                 .uid(orderDto.getUid())
                 .address(orderDto.getAddress())
                 .price(orderDto.getPrice())
                 .receiver(orderDto.getReceiver())
                 .phone(orderDto.getPhone())
                 .build();
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (OrderItemDto orderItemDto : orderDto.getOrderItems()) {
+            OrderItem orderItem = OrderItemMapper.mapToOrderItem(orderItemDto);
+            // Set the order for the OrderItem
+            orderItem.setOrder(order);
+            orderItems.add(orderItem);
+        }
+
+        // Set the orderItems for the Order
+        order.setOrderItems(orderItems);
+
+        return order;
     }
+
 }
