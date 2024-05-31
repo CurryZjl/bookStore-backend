@@ -7,6 +7,9 @@ import com.example.book_store_back_end.repositories.BookRepository;
 import com.example.book_store_back_end.services.BookService;
 import com.example.book_store_back_end.services.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -36,15 +39,17 @@ public class BookController {
    }
 
    @GetMapping
-    public ResponseDto<List<BookDto>> getBooks(){
-       //从数据库获取所有书籍信息
-      List<BookDto> res = bookService.findAll();
-      if(!res.isEmpty()){
-          return new ResponseDto<>(true,"GET OK",res);
-      }else {
-          return new ResponseDto<>(false,"Books Not Found",null);
-      }
+    public ResponseDto<Page<BookDto>> getBooks(@RequestParam(required = false, defaultValue = "") String query,
+                                               @RequestParam(required = false, defaultValue = "0") int pageIndex,
+                                               @RequestParam(required = false, defaultValue = "8") int pageSize){
+       Pageable pageable = PageRequest.of(pageIndex, pageSize);
+       Page<BookDto> bookPage;
+       try {
+           bookPage = bookService.searchBooksByName(query, pageable);
+       }catch (Exception e){
+           return new ResponseDto<>(false, e.getMessage(), null);
+       }
+       return new ResponseDto<>(true, "拿取书籍成功", bookPage);
+
    }
-
-
 }

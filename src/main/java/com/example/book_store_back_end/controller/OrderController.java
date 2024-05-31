@@ -40,13 +40,14 @@ public class OrderController {
             return new ResponseDto<>(false,"Auth ERROR", null);
         }
         orderInfo.setUid(uid);
-        long newOid = orderService.createOrder(orderInfo);
+        ResponseDto<Long> responseDto = orderService.createOrder(orderInfo);
+        long newOid = responseDto.resource();
         if(newOid != -1){
             /* 成功创建订单信息 */
-            return new ResponseDto<>(true, "订单提交成功", orderInfo);
+            return new ResponseDto<>(true, responseDto.message(), orderInfo);
         }else{
             /* 订单信息创建失败 */
-            return new ResponseDto<>(false,"订单提交错误", orderInfo);
+            return new ResponseDto<>(false, responseDto.message(), orderInfo);
         }
 
     }

@@ -26,7 +26,8 @@ public class Tag {
     private long tid;
     private String name;
 
-    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
     private List<Book> books;
 
     @CreationTimestamp

@@ -5,6 +5,8 @@ import com.example.book_store_back_end.entity.Book;
 import com.example.book_store_back_end.entity.OrderItem;
 import com.example.book_store_back_end.repositories.BookRepository;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,5 +28,10 @@ public class BookDaoImpl implements BookDao {
     @Override
     public List<Book> findAll() {
         return bookRepository.findAll();
+    }
+
+    @Override
+    public Page<Book> searchBooksByName(String name ,Pageable pageable) {
+        return bookRepository.findBooksByNameContainingIgnoreCase(name , pageable);
     }
 }

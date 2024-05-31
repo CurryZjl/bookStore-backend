@@ -1,10 +1,14 @@
 package com.example.book_store_back_end.servicesImpl;
 
+import com.example.book_store_back_end.dto.MessageDto;
 import com.example.book_store_back_end.dto.OrderDto;
 import com.example.book_store_back_end.dto.OrderItemDto;
+import com.example.book_store_back_end.dto.ResponseDto;
+import com.example.book_store_back_end.entity.Book;
 import com.example.book_store_back_end.entity.Order;
 import com.example.book_store_back_end.entity.OrderItem;
 import com.example.book_store_back_end.repositories.OrderRepository;
+import com.example.book_store_back_end.services.BookService;
 import com.example.book_store_back_end.services.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +21,12 @@ import java.util.stream.Collectors;
 @Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
+    private final BookService bookService;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, BookService bookService) {
         this.orderRepository = orderRepository;
+        this.bookService = bookService;
     }
 
     @Override
@@ -32,14 +38,23 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public long createOrder(OrderDto orderDto) {
+    public ResponseDto<Long> createOrder(OrderDto orderDto) {
        try{
            Order order = mapToOrder(orderDto);
+           List<OrderItem> orderItems = order.getOrderItems();
+           for(OrderItem orderItem : orderItems){
+               long bid = orderItem.getBook().getBid();
+               long amount = orderItem.getAmount();
+               MessageDto messageDto = this.bookService.updateBookStatus(bid,amount);
+               if(!messageDto.isValid()){
+                   return new ResponseDto<>(false, messageDto.getMessage(), -1L);
+               }
+           }
            Order saveOrder =  orderRepository.save(order);
-           return saveOrder.getOid();
+           return new ResponseDto<>(true, "创建订单成功" , saveOrder.getOid()) ;
        } catch (Exception e){
            System.err.println(e.getMessage());
-           return -1; //保存错误，返回-1
+           return new ResponseDto<>(false,"创建订单失败", -1L); //保存错误，返回-1
        }
     }
 
