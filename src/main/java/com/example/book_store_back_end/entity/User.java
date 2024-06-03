@@ -1,5 +1,10 @@
 package com.example.book_store_back_end.entity;
 
+import com.example.book_store_back_end.constants.UserRole;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +20,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -29,8 +35,7 @@ public class User {
     private String introduction;
     private String avatarSrc;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserAuth userAuth;
+    private UserRole role;
 
     @CreationTimestamp
     private LocalDateTime createOn;

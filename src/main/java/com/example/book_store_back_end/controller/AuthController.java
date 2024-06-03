@@ -1,5 +1,6 @@
 package com.example.book_store_back_end.controller;
 
+import com.example.book_store_back_end.constants.UserRole;
 import com.example.book_store_back_end.dto.AuthDto;
 import com.example.book_store_back_end.dto.ResponseDto;
 import com.example.book_store_back_end.repositories.UserRepository;
@@ -33,10 +34,20 @@ public class AuthController {
             return new ResponseDto<>(false,"找不到用户！", null);
         }
 
+        Optional<UserRole> userRole = userServive.findRoleByUid(uid.get());
+        if(userRole.isEmpty()){
+            return new ResponseDto<>(false,"用户角色错误", null); //不可到达
+        }
+        if(userRole.get().equals(UserRole.BANNED)){
+            return new ResponseDto<>(false,"您被禁止登录，请联系管理员", null);
+        }
+
+
         if(authService.checkPasswordByUidAndPassword(uid.get(), authDto.getPassword())){
             HttpSession session = SessionUtils.getSession();
             if(session != null){
                 session.setAttribute("uid", uid.get());
+                session.setAttribute("role", userRole.get());
             }
             return new ResponseDto<>(true, "登录成功", null);
         }
@@ -60,10 +71,8 @@ public class AuthController {
     public ResponseDto<AuthDto> signUp(@RequestBody AuthDto authDto){
        long newUid = userServive.createUser(authDto);
         if(newUid != -1){
-            /* 成功创建订单信息 */
             return new ResponseDto<>(true, "注册用户成功", authDto);
         }else{
-            /* 订单信息创建失败 */
             return new ResponseDto<>(false,"注册用户错误", authDto);
         }
     }

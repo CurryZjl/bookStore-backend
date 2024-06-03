@@ -1,5 +1,6 @@
 package com.example.book_store_back_end.controller;
 
+import com.example.book_store_back_end.constants.UserRole;
 import com.example.book_store_back_end.dto.ResponseDto;
 import com.example.book_store_back_end.dto.UserDto;
 import com.example.book_store_back_end.entity.User;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -33,5 +35,49 @@ public class UserController {
         }
         else
             return new ResponseDto<>(false,"User Not Found", null);
+    }
+
+    @GetMapping("/role")
+    public ResponseDto<UserRole> getRole(){
+        UserRole userRole = SessionUtils.getCurrentRole();
+        if(userRole.equals(UserRole.ERROR)){
+            return new ResponseDto(false,"GET ERROR ROLE", null );
+        }
+        else
+            return new ResponseDto<>(true, "GET OK", userRole);
+    }
+
+    @GetMapping("/all")
+    public ResponseDto<List<UserDto>> getAllUsers(){
+        UserRole userRole = SessionUtils.getCurrentRole();
+        if(!userRole.equals(UserRole.ADMIN)){
+            return new ResponseDto<>(false, "非管理员不可操作", null);
+        }
+        List<UserDto> userDtos;
+        try{
+            userDtos = userServive.findAllSimpleUser();
+            return new ResponseDto<>(true,"拿取全部普通用户信息成功", userDtos);
+        }catch (Exception e){
+            return new ResponseDto<>(false, "拿取全部用户信息失败", null);
+        }
+    }
+
+    @PatchMapping("/{uid}")
+    public ResponseDto<String> changeUserRole(@PathVariable("uid") long uid, @RequestBody String roleS){
+        UserRole userRole = SessionUtils.getCurrentRole();
+        if(!userRole.equals(UserRole.ADMIN)){
+            return new ResponseDto<>(false, "非管理员不可操作", null);
+        }
+        UserRole userRole1;
+        try {
+           userRole1 = UserRole.valueOf(roleS);
+        } catch (Exception e){
+            return new ResponseDto<>(false,"错误角色", null);
+        }
+
+        if(!userServive.changeUserRole(uid,userRole1)){
+            return new ResponseDto<>(false,"修改角色错误", null);
+        }
+        return new ResponseDto<>(true,"成功修改%d号用户角色为：%s".formatted(uid , userRole1.getRoleName()), null);
     }
 }
