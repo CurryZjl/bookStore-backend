@@ -39,7 +39,7 @@ public class AuthController {
             return new ResponseDto<>(false,"用户角色错误", null); //不可到达
         }
         if(userRole.get().equals(UserRole.BANNED)){
-            return new ResponseDto<>(false,"您被禁止登录，请联系管理员", null);
+            return new ResponseDto<>(false,"您的账号已经被禁用", null);
         }
 
 

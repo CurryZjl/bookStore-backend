@@ -85,6 +85,7 @@ public class BookServiceImpl implements BookService {
                 .status(book.getStatus())
                 .imagePath(book.getImagePath())
                 .tag(book.getTag().getName())
+                .isbn(book.getISBN())
                 .build();
     }
  }

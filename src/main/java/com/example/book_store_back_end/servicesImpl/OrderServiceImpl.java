@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,6 +57,22 @@ public class OrderServiceImpl implements OrderService {
            System.err.println(e.getMessage());
            return new ResponseDto<>(false,"创建订单失败", -1L); //保存错误，返回-1
        }
+    }
+
+    @Override
+    public List<OrderDto> findOrdersByBookNameLike(String bookName, long uid) {
+        List<Order> orders = orderRepository.findOrdersByBookNameLikeAndUid(bookName, uid);
+        return orders.stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderDto> findOrdersByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime, long uid) {
+        List<Order> orders = orderRepository.findOrdersByCreateOnBetweenAndUid(startTime, endTime, uid);
+        return orders.stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
     }
 
     private OrderDto mapToOrderDto(Order order){

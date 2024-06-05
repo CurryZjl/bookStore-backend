@@ -9,14 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookDto {
+public class StatBookDto {
     private long bid;
     private String imagePath;
     private String name;
-    private String tag;
-    private String author;
-    private long price;
-    private long status;
-    private String intro;
-    private String isbn;
+    private long count;
 }
