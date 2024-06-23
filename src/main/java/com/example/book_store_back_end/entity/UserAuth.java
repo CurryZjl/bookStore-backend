@@ -20,7 +20,7 @@ public class UserAuth {
 
     private String password;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "uid")
     private User user;
 }

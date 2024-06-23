@@ -1,7 +1,6 @@
 package com.example.book_store_back_end.repositories;
 
 import com.example.book_store_back_end.entity.Book;
-import com.example.book_store_back_end.entity.OrderItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

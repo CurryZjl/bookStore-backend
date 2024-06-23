@@ -1,14 +1,11 @@
 package com.example.book_store_back_end.utils;
 
-import com.example.book_store_back_end.dto.OrderDto;
-import com.example.book_store_back_end.dto.OrderItemDto;
-import com.example.book_store_back_end.dto.StatBookDto;
-import com.example.book_store_back_end.dto.StatItemDto;
+import com.example.book_store_back_end.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class OrderStatUtils {
     public static StatItemDto calculateUserOrderStatistics(List<OrderDto> orderDtos){
@@ -31,6 +28,25 @@ public class OrderStatUtils {
         statItemDto.setBooks(new ArrayList<>(bookMap.values()));
 
         return statItemDto;
+    }
+
+    public static List<ConsumptionDto> calculateConsumption(List<OrderDto> orderDtos){
+        Map<Long, Long> uidToTotalPrice = new HashMap<>();
+        for(OrderDto orderDto : orderDtos){
+            long uid = orderDto.getUid();
+            long price = orderDto.getPrice();
+            uidToTotalPrice.put(uid, uidToTotalPrice.getOrDefault(uid, 0L) + price);
+        }
+
+        List<ConsumptionDto> consumptionDtoList = uidToTotalPrice.entrySet().stream()
+                .map(longLongEntry -> ConsumptionDto.builder()
+                        .uid(longLongEntry.getKey())
+                        .price_all(longLongEntry.getValue())
+                        .build())
+                .collect(Collectors.toList());
+        consumptionDtoList.sort(Comparator.comparingLong(ConsumptionDto::getPrice_all).reversed());
+
+        return consumptionDtoList;
     }
 
     private static long calculateTotalBooks(OrderDto order){

@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface UserServive {
     Optional<UserDto> getUserByUid(long uid);
+    String findNameByUid(long uid);
     Optional<Long> findUidByName(String name);
     boolean existsUserByName(String name);
 

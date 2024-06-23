@@ -5,5 +5,5 @@ import com.example.book_store_back_end.entity.Order;
 import java.util.List;
 
 public interface OrderDao {
-    List<Order> findOrdersByUid(long uid);
+
 }

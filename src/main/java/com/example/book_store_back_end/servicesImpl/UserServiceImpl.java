@@ -32,6 +32,11 @@ public class UserServiceImpl implements UserServive {
     }
 
     @Override
+    public String findNameByUid(long uid) {
+        return userRepository.findNameByUid(uid);
+    }
+
+    @Override
     public boolean existsUserByName(String name) {
         return userRepository.existsUserByName(name);
     }

@@ -12,8 +12,12 @@ import com.example.book_store_back_end.services.BookService;
 import com.example.book_store_back_end.services.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +35,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getOrdersByUid(long id) {
+    public Page<OrderDto> getOrdersByUid(long id, Pageable pageable) {
+        Page<Order> orders = orderRepository.findOrdersByUid(id, pageable);
+        List<OrderDto> orderDtos = orders.getContent().stream()
+                .map(this::mapToOrderDto).collect(Collectors.toList());
+        return new PageImpl<>(orderDtos, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public List<OrderDto> getOrdersByUidNoPage(long id) {
         List<Order> orders = orderRepository.findOrdersByUid(id);
         return orders.stream()
                 .map(this::mapToOrderDto).collect(Collectors.toList());
@@ -60,16 +72,61 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> findOrdersByBookNameLike(String bookName, long uid) {
-        List<Order> orders = orderRepository.findOrdersByBookNameLikeAndUid(bookName, uid);
+    public Page<OrderDto> findOrdersByBookNameLike(String bookName, long uid, Pageable pageable) {
+        Page<Order> orders = orderRepository.findOrdersByBookNameLikeAndUid(bookName, uid, pageable);
+        List<OrderDto> orderDtos = orders.getContent().stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(orderDtos, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public Page<OrderDto> findOrdersByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime, long uid, Pageable pageable) {
+        Page<Order> orders = orderRepository.findOrdersByCreateOnBetweenAndUid(startTime, endTime, uid, pageable);
+        List<OrderDto> orderDtos = orders.getContent().stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(orderDtos, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public List<OrderDto> findOrdersByCreateOnBetweenNoPage(LocalDateTime startTime, LocalDateTime endTime, long uid) {
+        List<Order> orders = orderRepository.findOrdersByCreateOnBetweenAndUid(startTime, endTime, uid);
         return orders.stream()
                 .map(this::mapToOrderDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrderDto> findOrdersByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime, long uid) {
-        List<Order> orders = orderRepository.findOrdersByCreateOnBetweenAndUid(startTime, endTime, uid);
+    public Page<OrderDto> findAllOrders(Pageable pageable) {
+        Page<Order> orders = orderRepository.findAll(pageable);
+        List<OrderDto> orderDtos= orders.getContent().stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(orderDtos, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public Page<OrderDto> findAllByBookNameLike(String bookName, Pageable pageable) {
+        Page<Order> orders = orderRepository.findAllByBookNameLike(bookName, pageable);
+        List<OrderDto> orderDtos = orders.getContent().stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(orderDtos, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public Page<OrderDto> findAllByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
+        Page<Order> orders = orderRepository.findAllByCreateOnBetween(startTime, endTime, pageable);
+        List<OrderDto> orderDtos = orders.getContent().stream()
+                .map(this::mapToOrderDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(orderDtos, pageable, orders.getTotalElements());
+    }
+
+    @Override
+    public List<OrderDto> findAllByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime) {
+        List<Order> orders = orderRepository.findAllByCreateOnBetween(startTime, endTime);
         return orders.stream()
                 .map(this::mapToOrderDto)
                 .collect(Collectors.toList());

@@ -29,7 +29,7 @@ public class Order {
     private String address;
     private long price;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)//级联删除，如果删除/写入order,对应的orderItem也会被删除/写入 孤儿删除，如果移除order中的orderItem，那么这个orderItem也会被删除
     private List<OrderItem> orderItems;
 
     @CreationTimestamp

@@ -15,8 +15,4 @@ public class OrderDaoImpl implements OrderDao {
         this.orderRepository = orderRepository;
     }
 
-    @Override
-    public List<Order> findOrdersByUid(long uid) {
-        return orderRepository.findOrdersByUid(uid);
-    }
 }
