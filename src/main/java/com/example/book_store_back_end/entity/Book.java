@@ -26,6 +26,8 @@ public class Book{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bid")
     private long bid;
+    @Lob
+    @Column(name = "imagePath", length = 1000000)
     private String imagePath;
     private String name;
     private String author;
@@ -33,11 +35,13 @@ public class Book{
     private long status;
     private String intro;
     private String ISBN;
+    private boolean deleted;
     @ManyToOne
     @JoinColumn(name = "tid")
     private Tag tag;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;

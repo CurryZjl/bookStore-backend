@@ -34,6 +34,7 @@ public class OrderItem {
 
     private int amount;
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;

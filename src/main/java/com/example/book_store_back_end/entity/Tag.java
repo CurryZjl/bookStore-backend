@@ -24,6 +24,8 @@ public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long tid;
+
+    @Column(unique = true)
     private String name;
 
     @JsonIgnore
@@ -31,6 +33,7 @@ public class Tag {
     private List<Book> books;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;

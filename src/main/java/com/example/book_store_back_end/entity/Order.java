@@ -33,6 +33,7 @@ public class Order {
     private List<OrderItem> orderItems;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;

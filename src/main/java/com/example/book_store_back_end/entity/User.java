@@ -38,6 +38,7 @@ public class User {
     private UserRole role;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;

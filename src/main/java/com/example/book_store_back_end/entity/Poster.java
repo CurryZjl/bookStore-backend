@@ -24,6 +24,7 @@ public class Poster{
     private String name;
     private String posterPath;
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;

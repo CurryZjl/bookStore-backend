@@ -32,6 +32,7 @@ public class CartItem {
     private long uid;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;

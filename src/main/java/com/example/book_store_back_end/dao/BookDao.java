@@ -9,6 +9,5 @@ import java.util.Optional;
 
 public interface BookDao {
     Optional<Book> findBookByBid(long id);
-    List<Book> findAll();
     Page<Book> searchBooksByName(String name , Pageable pageable);
 }
