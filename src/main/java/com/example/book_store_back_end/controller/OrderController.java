@@ -75,7 +75,7 @@ public class OrderController {
         try{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime sTime = LocalDateTime.parse(startTime + "T00:00:00", formatter);
-            LocalDateTime eTime = LocalDateTime.parse(endTime + "T00:00:00", formatter);
+            LocalDateTime eTime = LocalDateTime.parse(endTime + "T23:59:59", formatter);
             Page<OrderDto> orderDtos = orderService.findOrdersByCreateOnBetween(sTime,eTime, uid, pageable);
             return new  ResponseDto<>(true,"GET OK",orderDtos);
         }catch (Exception e){
