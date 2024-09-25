@@ -1,9 +1,6 @@
 package com.example.book_store_back_end.servicesImpl;
 
-import com.example.book_store_back_end.dto.MessageDto;
-import com.example.book_store_back_end.dto.OrderDto;
-import com.example.book_store_back_end.dto.OrderItemDto;
-import com.example.book_store_back_end.dto.ResponseDto;
+import com.example.book_store_back_end.dto.*;
 import com.example.book_store_back_end.entity.Order;
 import com.example.book_store_back_end.entity.OrderItem;
 import com.example.book_store_back_end.mapper.OrderItemMapper;
@@ -36,17 +33,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<OrderDto> getOrdersByUid(long id, Pageable pageable) {
-        Page<Order> orders = orderRepository.findOrdersByUid(id, pageable);
+        Page<Order> orders = orderRepository.findOrdersByUidOrderByCreateOnDesc(id, pageable);
         List<OrderDto> orderDtos = orders.getContent().stream()
                 .map(this::mapToOrderDto).collect(Collectors.toList());
         return new PageImpl<>(orderDtos, pageable, orders.getTotalElements());
-    }
-
-    @Override
-    public List<OrderDto> getOrdersByUidNoPage(long id) {
-        List<Order> orders = orderRepository.findOrdersByUid(id);
-        return orders.stream()
-                .map(this::mapToOrderDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -90,14 +80,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> findOrdersByCreateOnBetweenNoPage(LocalDateTime startTime, LocalDateTime endTime, long uid) {
-        List<Order> orders = orderRepository.findOrdersByCreateOnBetweenAndUid(startTime, endTime, uid);
-        return orders.stream()
-                .map(this::mapToOrderDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public Page<OrderDto> findAllOrders(Pageable pageable) {
         Page<Order> orders = orderRepository.findAll(pageable);
         List<OrderDto> orderDtos= orders.getContent().stream()
@@ -116,6 +98,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<StatBookDto> findBooksPurchasedByUserInTimeRange(long uid, LocalDateTime startTime, LocalDateTime endTime) {
+        return orderRepository.findBooksPurchasedByUserInTimeRange(uid, startTime, endTime);
+    }
+
+    @Override
     public Page<OrderDto> findAllByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
         Page<Order> orders = orderRepository.findAllByCreateOnBetween(startTime, endTime, pageable);
         List<OrderDto> orderDtos = orders.getContent().stream()
@@ -125,11 +112,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> findAllByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime) {
-        List<Order> orders = orderRepository.findAllByCreateOnBetween(startTime, endTime);
-        return orders.stream()
-                .map(this::mapToOrderDto)
-                .collect(Collectors.toList());
+    public List<ConsumptionDto> findUserConsumptionInTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
+        return orderRepository.findUserConsumptionInTimeRange(startTime, endTime);
     }
 
     private OrderDto mapToOrderDto(Order order){

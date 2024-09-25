@@ -14,4 +14,5 @@ public class StatBookDto {
     private String imagePath;
     private String name;
     private long count;
+    private long price;
 }

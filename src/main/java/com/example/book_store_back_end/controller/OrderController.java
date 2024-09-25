@@ -4,7 +4,6 @@ import com.example.book_store_back_end.constants.UserRole;
 import com.example.book_store_back_end.dto.*;
 import com.example.book_store_back_end.services.OrderService;
 import com.example.book_store_back_end.services.UserServive;
-import com.example.book_store_back_end.utils.OrderStatUtils;
 import com.example.book_store_back_end.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -102,43 +101,30 @@ public class OrderController {
 
     }
 
-    @GetMapping("/stat")
-    public ResponseDto<StatItemDto> getAllStatItem(){
-        final long uid = SessionUtils.getCurrentAuthUid();
-        if(uid == -1){
-            return new ResponseDto<>(false,"Auth ERROR", null);
-        }
-
-        List<OrderDto> orderDtos;
-        try {
-            orderDtos = orderService.getOrdersByUidNoPage(uid);
-        }catch (Exception e){
-            System.err.println(e.getMessage());
-            return new ResponseDto<>(false, "GET ERROR", null);
-        }
-
-        StatItemDto statItemDto = OrderStatUtils.calculateUserOrderStatistics(orderDtos);
-        return new ResponseDto<>(true,"GET OK", statItemDto);
-    }
-
     @PostMapping("/stat")
     public ResponseDto<StatItemDto> getStatItemByTime(@RequestBody TimeDto timeDto){
         final long uid = SessionUtils.getCurrentAuthUid();
         if(uid == -1){
             return new ResponseDto<>(false,"Auth ERROR", null);
         }
-        List<OrderDto> orderDtos;
         try{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime sTime = LocalDateTime.parse(timeDto.getStartTime() + "T00:00:00", formatter);
             LocalDateTime eTime = LocalDateTime.parse(timeDto.getEndTime() + "T23:59:59", formatter);
-            orderDtos = orderService.findOrdersByCreateOnBetweenNoPage(sTime,eTime, uid);
+            List<StatBookDto> statBookDtos = orderService.findBooksPurchasedByUserInTimeRange(uid, sTime, eTime);
+            StatItemDto statItemDto = StatItemDto.builder().books(statBookDtos).build();
+            long nums = 0;
+            long price = 0;
+            for(StatBookDto book1: statBookDtos){
+                nums += book1.getCount();
+                price += book1.getPrice();
+            }
+            statItemDto.setBookNums(nums);
+            statItemDto.setAllPrice(price);
+            return new ResponseDto<>(true,"GET OK", statItemDto);
         }catch (Exception e){
             return new ResponseDto<>(false,"GET ERROR", null);
         }
-
-        StatItemDto statItemDto = OrderStatUtils.calculateUserOrderStatistics(orderDtos);
-        return new ResponseDto<>(true,"GET OK", statItemDto);
     }
 
     @GetMapping("/price")
@@ -153,22 +139,20 @@ public class OrderController {
         if(!role.equals(UserRole.ADMIN)){
             return new ResponseDto<>(false, "非管理员不可操作", null);
         }
-        List<OrderDto> orderDtos;
         try{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime sTime = LocalDateTime.parse(startTime + "T00:00:00", formatter);
             LocalDateTime eTime = LocalDateTime.parse(endTime + "T23:59:59", formatter);
-            orderDtos = orderService.findAllByCreateOnBetween(sTime,eTime);
+            List<ConsumptionDto> consumptionDtos  = orderService.findUserConsumptionInTimeRange( sTime, eTime);
+            for(ConsumptionDto consumptionDto : consumptionDtos)
+            {
+                String name = this.userServive.findNameByUid(consumptionDto.getUid());
+                consumptionDto.setName(name);
+            }
+            return new ResponseDto<>(true,"拿取消费情况成功", consumptionDtos);
         }catch (Exception e){
             return new ResponseDto<>(false,e.getMessage(), null);
         }
-        List<ConsumptionDto> consumptionDtos = OrderStatUtils.calculateConsumption(orderDtos);
-        for(ConsumptionDto consumptionDto : consumptionDtos)
-        {
-            String name = this.userServive.findNameByUid(consumptionDto.getUid());
-            consumptionDto.setName(name);
-        }
-        return new ResponseDto<>(true,"拿取消费情况成功", consumptionDtos);
     }
 
     @GetMapping("/all")
