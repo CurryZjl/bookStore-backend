@@ -4,26 +4,22 @@ import com.example.book_store_back_end.constants.UserRole;
 import com.example.book_store_back_end.dto.AuthDto;
 import com.example.book_store_back_end.dto.ResponseDto;
 import com.example.book_store_back_end.services.AuthService;
+import com.example.book_store_back_end.services.ClockService;
 import com.example.book_store_back_end.services.UserServive;
 import com.example.book_store_back_end.utils.SessionUtils;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final UserServive userServive;
     private final AuthService authService;
-
-    public AuthController(UserServive userServive, AuthService authService) {
-        this.userServive = userServive;
-        this.authService = authService;
-    }
+    private final ClockService clockService;
 
     @PostMapping("/login")
     public ResponseDto<String> login(@RequestBody AuthDto authDto){
@@ -47,11 +43,23 @@ public class AuthController {
                 session.setAttribute("uid", uid.get());
                 session.setAttribute("role", userRole.get());
             }
+            clockService.startClock();
             return new ResponseDto<>(true, "登录成功", null);
         }
         else {
             return new ResponseDto<>(false,"密码错误！", null);
         }
+    }
+
+    @GetMapping("/logout")
+    public ResponseDto<String> logout(){
+        HttpSession session = SessionUtils.getSession();
+        String logoutMessage = null;
+        if(session != null){
+            logoutMessage = clockService.closeClock();
+            session.invalidate(); //销毁对应的session
+        }
+        return new ResponseDto<>(true,  "Logout successfully", logoutMessage);
     }
 
     @PostMapping("/user/name")
