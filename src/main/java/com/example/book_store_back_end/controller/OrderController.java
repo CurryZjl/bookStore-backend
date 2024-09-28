@@ -1,14 +1,18 @@
 package com.example.book_store_back_end.controller;
 
+import com.example.book_store_back_end.constants.KafkaConfig;
 import com.example.book_store_back_end.constants.UserRole;
 import com.example.book_store_back_end.dto.*;
 import com.example.book_store_back_end.services.OrderService;
 import com.example.book_store_back_end.services.UserServive;
 import com.example.book_store_back_end.utils.SessionUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,15 +21,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
     private final UserServive userServive;
-
-    @Autowired
-    public OrderController(OrderService orderService, UserServive userServive) {
-        this.orderService = orderService;
-        this.userServive = userServive;
-    }
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     @GetMapping()
     public ResponseDto<Page<OrderDto>> getOrders( @RequestParam(required = false, defaultValue = "0") int pageIndex,
@@ -89,16 +90,18 @@ public class OrderController {
             return new ResponseDto<>(false,"Auth ERROR", null);
         }
         orderInfo.setUid(uid);
-        ResponseDto<Long> responseDto = orderService.createOrder(orderInfo);
-        long newOid = responseDto.resource();
-        if(newOid != -1){
-            /* 成功创建订单信息 */
-            return new ResponseDto<>(true, responseDto.message(), orderInfo);
-        }else{
-            /* 订单信息创建失败 */
-            return new ResponseDto<>(false, responseDto.message(), orderInfo);
+        String data = null;
+        try {
+            data = objectMapper.writeValueAsString(orderInfo);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
         }
-
+        if(data == null){
+            return new ResponseDto<>(false, "接收订单信息失败", null);
+        }
+        kafkaTemplate.send(KafkaConfig.KAFKA_TOPIC1, KafkaConfig.KAFKA_ORDER_KEY, data);
+        System.out.println("成功得到订单数据data：" + data);
+        return new ResponseDto<>(true, "成功接收订单等待处理", null);
     }
 
     @PostMapping("/stat")
