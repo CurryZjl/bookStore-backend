@@ -44,7 +44,7 @@ public class AuthController {
                 session.setAttribute("role", userRole.get());
             }
             clockService.startClock();
-            return new ResponseDto<>(true, "登录成功", null);
+            return new ResponseDto<>(true, "登录成功", uid.get().toString());
         }
         else {
             return new ResponseDto<>(false,"密码错误！", null);

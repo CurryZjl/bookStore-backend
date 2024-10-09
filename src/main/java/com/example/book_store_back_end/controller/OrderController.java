@@ -100,7 +100,6 @@ public class OrderController {
             return new ResponseDto<>(false, "接收订单信息失败", null);
         }
         kafkaTemplate.send(KafkaConfig.KAFKA_TOPIC1, KafkaConfig.KAFKA_ORDER_KEY, data);
-        System.out.println("成功得到订单数据data：" + data);
         return new ResponseDto<>(true, "成功接收订单等待处理", null);
     }
 

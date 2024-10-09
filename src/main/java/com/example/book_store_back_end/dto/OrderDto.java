@@ -12,8 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDto {
-    private long uid;
-    private long oid;
+    private Long uid;
+    private Long oid;
     private String receiver;
     private String phone;
     private String address;

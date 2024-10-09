@@ -8,11 +8,13 @@ import com.example.book_store_back_end.entity.Tag;
 import com.example.book_store_back_end.repositories.BookRepository;
 import com.example.book_store_back_end.repositories.TagRepository;
 import com.example.book_store_back_end.services.BookService;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
