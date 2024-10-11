@@ -51,14 +51,14 @@ public class OrderWebSocketServer {
         }
         SESSIONS.put(userId.trim(), session);
         COUNT.incrementAndGet();
-        System.out.println(userId + "加入WebSocket连接，当前在线人数：" + COUNT);
+        System.out.println("用户" + userId + "加入WebSocket连接，当前在线人数：" + COUNT);
     }
 
     @OnClose
     public void onClose(@PathParam("userId") String userId){
         SESSIONS.remove(userId);
         COUNT.decrementAndGet();
-        System.out.println(userId + "退出WebSocket连接，当前在线人数：" + COUNT);
+        System.out.println("用户" + userId + "退出WebSocket连接，当前在线人数：" + COUNT);
     }
 
     @OnError

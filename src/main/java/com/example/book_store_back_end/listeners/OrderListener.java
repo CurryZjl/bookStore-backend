@@ -1,8 +1,8 @@
 package com.example.book_store_back_end.listeners;
 
 import com.example.book_store_back_end.constants.KafkaConfig;
+import com.example.book_store_back_end.dto.MessageDto;
 import com.example.book_store_back_end.dto.OrderDto;
-import com.example.book_store_back_end.dto.ResponseDto;
 import com.example.book_store_back_end.services.OrderService;
 import com.example.book_store_back_end.wsServers.OrderWebSocketServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,13 +25,44 @@ public class OrderListener {
         String value = record.value();
         try {
             OrderDto orderDto = objectMapper.readValue(value, OrderDto.class);
-            ResponseDto<Long> responseDto  = orderService.createOrder(orderDto);
-            long newOid = responseDto.resource();
-            System.out.println(newOid);
-            String key = orderDto.getUid().toString() + "," + orderDto.getOid();
-            kafkaTemplate.send(KafkaConfig.KAFKA_TOPIC2, key, "Done"); //成功完成订单，发送信息
-        }catch (Exception e){
+            Long newOid  = orderService.createOrder(orderDto);
+            String key = orderDto.getUid().toString() + "," + newOid;
+            MessageDto messageDto = MessageDto.builder().valid(true).message("您的订单已完成 oid:" +newOid).build();
+            //成功完成订单
+            kafkaTemplate.send(KafkaConfig.KAFKA_TOPIC2, key, objectMapper.writeValueAsString(messageDto));
+        }catch (RuntimeException e){
+            // 捕获事务中的运行时异常
+            System.err.println("事务失败: " + e.getMessage());
+            MessageDto errMsg = MessageDto.builder()
+                    .valid(false)
+                    .message("您的订单处理失败: " + e.getMessage())
+                    .build();
+            // 发送错误信息到 Kafka
+            try {
+                OrderDto orderDto = objectMapper.readValue(value, OrderDto.class);
+                kafkaTemplate.send(KafkaConfig.KAFKA_TOPIC2,
+                        orderDto.getUid() + "," + "errorKey" + value,
+                        objectMapper.writeValueAsString(errMsg));
+            } catch (Exception exception) {
+                System.err.println(exception.getMessage());
+            }
+        }
+        catch (Exception e){
+            // 捕获其他异常
             System.err.println(e.getMessage());
+            MessageDto errMsg = MessageDto.builder()
+                    .valid(false)
+                    .message("您的订单处理失败: " + e.getMessage())
+                    .build();
+            // 发送错误信息到 Kafka
+            try {
+                OrderDto orderDto = objectMapper.readValue(value, OrderDto.class);
+                kafkaTemplate.send(KafkaConfig.KAFKA_TOPIC2,
+                        orderDto.getUid() + "," + "errorKey" + value,
+                        objectMapper.writeValueAsString(errMsg));
+            } catch (Exception exception) {
+                System.err.println(exception.getMessage());
+            }
         }
     }
 
@@ -44,6 +75,7 @@ public class OrderListener {
             System.err.println("拿取key错误");
             return;
         }
+        //告知用户订单处理结果 也可能出错
         orderWebSocketServer.sendMessageToUser(keys[0], record.value());
     }
 }

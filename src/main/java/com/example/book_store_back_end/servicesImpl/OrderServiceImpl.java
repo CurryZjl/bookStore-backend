@@ -6,6 +6,7 @@ import com.example.book_store_back_end.entity.OrderItem;
 import com.example.book_store_back_end.mapper.OrderItemMapper;
 import com.example.book_store_back_end.repositories.OrderRepository;
 import com.example.book_store_back_end.services.BookService;
+import com.example.book_store_back_end.services.CartItemService;
 import com.example.book_store_back_end.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final BookService bookService;
+    private final CartItemService cartItemService;
 
     @Override
     public Page<OrderDto> getOrdersByUid(long id, Pageable pageable) {
@@ -35,23 +37,27 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public ResponseDto<Long> createOrder(OrderDto orderDto) {
+    public Long createOrder(OrderDto orderDto) {
        try{
            Order order = mapToOrder(orderDto);
+           Thread.sleep(5000);
            List<OrderItem> orderItems = order.getOrderItems();
            for(OrderItem orderItem : orderItems){
                long bid = orderItem.getBook().getBid();
                long amount = orderItem.getAmount();
-               MessageDto messageDto = this.bookService.updateBookStatus(bid,amount);
-               if(!messageDto.isValid()){
-                   return new ResponseDto<>(false, messageDto.getMessage(), -1L);
-               }
+               this.bookService.updateBookStatus(bid,amount);
+               //若更新书籍库存成功，同时对应删除购物车的记录
+               cartItemService.deleteCartItemByUidAndBid(order.getUid(), bid);
            }
            Order saveOrder =  orderRepository.save(order);
-           return new ResponseDto<>(true, "创建订单成功" , saveOrder.getOid()) ;
-       } catch (Exception e){
+           return saveOrder.getOid();
+       } catch (RuntimeException e){
            System.err.println(e.getMessage());
-           return new ResponseDto<>(false,"创建订单失败", -1L); //保存错误，返回-1
+           throw e; //重新抛出异常使得调用 createOrder 的方法能知道更具体的错误信息
+       }
+       catch (Exception e){
+           System.err.println(e.getMessage());
+           return null; //保存错误，返回空
        }
     }
 
@@ -139,6 +145,7 @@ public class OrderServiceImpl implements OrderService {
         for (OrderItemDto orderItemDto : orderDto.getOrderItems()) {
             OrderItem orderItem = OrderItemMapper.mapToOrderItem(orderItemDto);
             // Set the order for the OrderItem
+            orderItem.setOrder(order);
             orderItems.add(orderItem);
         }
 

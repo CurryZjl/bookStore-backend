@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface OrderService {
     Page<OrderDto> getOrdersByUid(long id, Pageable pageable);
-    ResponseDto<Long> createOrder(OrderDto orderDto);
+    Long createOrder(OrderDto orderDto);
     Page<OrderDto> findOrdersByBookNameLike(String bookName, long uid, Pageable pageable);
     Page<OrderDto> findOrdersByCreateOnBetween(LocalDateTime startTime, LocalDateTime endTime, long uid, Pageable pageable);
     Page<OrderDto> findAllOrders(Pageable pageable);

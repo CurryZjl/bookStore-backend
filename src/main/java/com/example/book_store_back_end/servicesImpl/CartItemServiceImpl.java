@@ -8,8 +8,8 @@ import com.example.book_store_back_end.repositories.CartItemRepository;
 import com.example.book_store_back_end.services.BookService;
 import com.example.book_store_back_end.services.CartItemService;
 import com.example.book_store_back_end.utils.SessionUtils;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +44,12 @@ public class CartItemServiceImpl implements CartItemService {
             System.err.println("Error deleting cartItem: Data integrity violation - " + e.getMessage());
         }
         return false;
+    }
+
+    @Transactional
+    @Override
+    public void deleteCartItemByUidAndBid(Long uid, Long bid){
+        this.cartItemRepository.deleteCartItemByUidAndBook_Bid(uid, bid);
     }
 
     @Transactional

@@ -2,7 +2,6 @@ package com.example.book_store_back_end.servicesImpl;
 
 import com.example.book_store_back_end.dao.BookDao;
 import com.example.book_store_back_end.dto.BookDto;
-import com.example.book_store_back_end.dto.MessageDto;
 import com.example.book_store_back_end.entity.Book;
 import com.example.book_store_back_end.entity.Tag;
 import com.example.book_store_back_end.repositories.BookRepository;
@@ -39,29 +38,20 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public MessageDto updateBookStatus(long bid, long amount) {
+    public Long updateBookStatus(long bid, long amount) throws RuntimeException {
         Optional<Book> book = bookDao.findBookByBid(bid);
         if(book.isPresent()){
             Book book1 = book.get();
             long status = book1.getStatus();
             long newStatus = status - amount;
             if(newStatus < 0){
-                return MessageDto.builder()
-                        .valid(false)
-                        .message("本书籍缺货")
-                        .build();
+                throw new RuntimeException("书籍bid:" + bid + "缺货");
             }
             book1.setStatus(newStatus);
-            bookRepository.save(book1);
-            return MessageDto.builder()
-                    .message("更新库存成功")
-                    .valid(true)
-                    .build();
+            Book newBook = bookRepository.save(book1);
+            return newBook.getStatus();
         }
-        return MessageDto.builder()
-                .valid(false)
-                .message("更新书籍库存错误")
-                .build();
+        throw new RuntimeException("更新书籍库存错误");
     }
 
     @Override

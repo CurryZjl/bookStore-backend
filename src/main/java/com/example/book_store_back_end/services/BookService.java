@@ -11,7 +11,7 @@ import java.util.Optional;
 @Service
 public interface BookService {
     Optional<BookDto> findBookByBid(long id);
-    MessageDto updateBookStatus(long bid, long amount);
+    Long updateBookStatus(long bid, long amount);
 
     Page<BookDto> searchBooksByName(String name, Pageable pageable);
 
