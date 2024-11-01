@@ -40,7 +40,6 @@ public class OrderServiceImpl implements OrderService {
     public Long createOrder(OrderDto orderDto) {
        try{
            Order order = mapToOrder(orderDto);
-           Thread.sleep(5000);
            List<OrderItem> orderItems = order.getOrderItems();
            for(OrderItem orderItem : orderItems){
                long bid = orderItem.getBook().getBid();

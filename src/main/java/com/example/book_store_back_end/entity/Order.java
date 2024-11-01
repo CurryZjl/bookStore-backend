@@ -1,5 +1,6 @@
 package com.example.book_store_back_end.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,7 @@ public class Order {
     private String address;
     private long price;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)//级联删除，如果删除/写入order,对应的orderItem也会被删除/写入 孤儿删除，如果移除order中的orderItem，那么这个orderItem也会被删除
     private List<OrderItem> orderItems;
 
