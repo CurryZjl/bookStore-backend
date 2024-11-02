@@ -1,0 +1,47 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+        server-addr: http://127.0.0.1:8848
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - 'http://localhost:3000'
+              - 'http://localhost:8081'
+              - 'http://localhost:8082'
+            allowed-headers:
+              - '*'
+            allowed-methods:
+              - "GET"
+              - "POST"
+              - "PATCH"
+              - "PUT"
+              - "DELETE"
+              - "OPTIONS"
+              - "HEAD"
+            allowCredentials: true
+            maxAge: 360000 # 这次跨域检测的有效期
+
+
+      routes:
+        - id: mainService
+          uri: lb://mainService  # main service
+          predicates:
+            - Path=/api/**
+          filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin # 过滤跨域重复
+        - id: authorService
+          uri: lb://authorService
+          predicates:
+            - Path=/micro/**
+          filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin # 过滤跨域重复
+        - id: serverless
+          uri: lb://serverless
+          predicates:
+            - Path=/price
