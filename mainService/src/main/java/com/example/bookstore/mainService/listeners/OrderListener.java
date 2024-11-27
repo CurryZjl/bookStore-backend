@@ -70,7 +70,7 @@ public class OrderListener {
     public void topic2Listener(ConsumerRecord<String, String> record){
         String value = record.value();
         System.out.println(value);
-        String[] keys = record.key().split(",");
+        String[] keys = record.key().split(","); //根据订单的key去向前端做消息通知
         if(keys.length < 1){
             System.err.println("拿取key错误");
             return;
