@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StatBookDto {
     private long bid;
-    private String imagePath;
     private String name;
     private long count;
     private long price;

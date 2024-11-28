@@ -1,15 +1,12 @@
 package com.example.bookstore.mainService.serviceImpl;
 
-
-import com.example.bookstore.mainService.constants.RedisConstants;
 import com.example.bookstore.mainService.dao.BookDao;
 import com.example.bookstore.mainService.dto.BookDto;
 import com.example.bookstore.mainService.entity.Book;
+import com.example.bookstore.mainService.entity.BookInfo;
 import com.example.bookstore.mainService.entity.Tag;
-import com.example.bookstore.mainService.repositories.BookRepository;
 import com.example.bookstore.mainService.repositories.TagRepository;
 import com.example.bookstore.mainService.services.BookService;
-import com.example.bookstore.mainService.utils.CacheClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,9 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class BookServiceImpl implements BookService {
     private final BookDao bookDao;
-    private final BookRepository bookRepository;
     private final TagRepository tagRepository;
-    private final CacheClient cacheClient;
 
     @Override
     public Optional<BookDto> findBookByBid(long id) {
@@ -50,8 +44,7 @@ public class BookServiceImpl implements BookService {
                 throw new RuntimeException("书籍bid:" + bid + "缺货");
             }
             book1.setStatus(newStatus);
-            Book newBook = bookRepository.save(book1);
-            cacheClient.setRedis(RedisConstants.CACHE_BOOK_KEY + book1.getBid(), book1, RedisConstants.CACHE_BOOK_TTL, TimeUnit.MINUTES);
+            Book newBook = bookDao.saveBook(book1, false);
             return newBook.getStatus();
         }
         throw new RuntimeException("更新书籍库存错误");
@@ -69,58 +62,51 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto saveBook(BookDto bookDto) {
-        Optional<Book> book = bookRepository.findBookByBidAndDeletedFalse(bookDto.getBid());
-        if(book.isEmpty()){
-            //新增一本书
-            Book book1 = bookRepository.save(mapToBook(bookDto));
-            cacheClient.setRedis(RedisConstants.CACHE_BOOK_KEY + book1.getBid(), book1, RedisConstants.CACHE_BOOK_TTL, TimeUnit.MINUTES);
-            return mapToBookDto(book1);
-        } else{
-            Book book1 = book.get();
-            book1.setName(bookDto.getName());
-            book1.setAuthor(bookDto.getAuthor());
-            book1.setImagePath(bookDto.getImagePath());
-            book1.setISBN(bookDto.getIsbn());
-            book1.setStatus(bookDto.getStatus());
-            try {
-                //更新一本书
-                Book book2 = bookRepository.save(book1);
-                cacheClient.setRedis(RedisConstants.CACHE_BOOK_KEY + book2.getBid(), book2, RedisConstants.CACHE_BOOK_TTL, TimeUnit.MINUTES);
-                BookDto bookDto1 = mapToBookDto(book2);
-                return bookDto1;
-            }catch (Exception e){
-                System.err.println(e.getMessage());
-                return null;
+        try{
+            Optional<Book> book = bookDao.findBookByBid(bookDto.getBid());
+            if(book.isEmpty()){
+                //新增一本书
+                Book book1 = bookDao.saveBook(mapToBook(bookDto), true);
+                return mapToBookDto(book1);
+            } else{
+                Book book1 = book.get();
+                book1.setName(bookDto.getName());
+                book1.setAuthor(bookDto.getAuthor());
+                book1.getBookInfo().setImage(bookDto.getImagePath());
+                book1.setISBN(bookDto.getIsbn());
+                book1.setStatus(bookDto.getStatus());
+                return mapToBookDto(bookDao.saveBook(book1, true));
             }
+        }
+        catch (Exception e){
+            log.warn(e.getMessage());
+            return null;
         }
     }
 
     @Transactional
     @Override
     public BookDto deleteBookByBid(long bid) {
-        Optional<Book> book = bookRepository.findBookByBidAndDeletedFalse(bid);
-        if(book.isEmpty())
-            return null;
-        else {
-            book.get().setDeleted(true);
-            cacheClient.safeDelete(RedisConstants.CACHE_BOOK_KEY + bid);
-            bookRepository.save(book.get());
-            return mapToBookDto(book.get());
-        }
+            return mapToBookDto(bookDao.deleteBookByBid(bid));
     }
 
     private static BookDto mapToBookDto(Book book){
-        return BookDto.builder()
+        BookDto bookDto = BookDto.builder()
                 .bid(book.getBid())
                 .price(book.getPrice())
-                .intro(book.getIntro())
                 .name(book.getName())
                 .author(book.getAuthor())
                 .status(book.getStatus())
-                .imagePath(book.getImagePath())
-                .tag(book.getTag().getName())
                 .isbn(book.getISBN())
                 .build();
+        if(book.getTag() != null){
+            bookDto.setTag(book.getTag().getName());
+        }
+        if(book.getBookInfo() != null){
+            bookDto.setImagePath(book.getBookInfo().getImage());
+            bookDto.setIntro(book.getBookInfo().getIntro());
+        }
+        return bookDto;
     }
 
     private Book mapToBook(BookDto bookDto){
@@ -129,12 +115,16 @@ public class BookServiceImpl implements BookService {
             return tagRepository.save(newTag);
         });
 
+        BookInfo bookInfo = BookInfo.builder()
+                .image(bookDto.getImagePath())
+                .intro(bookDto.getIntro())
+                .build();
+
         Book book = Book.builder()
                 .ISBN(bookDto.getIsbn())
                 .name(bookDto.getName())
                 .status(bookDto.getStatus())
-                .imagePath(bookDto.getImagePath())
-                .intro(bookDto.getIntro())
+                .bookInfo(bookInfo)
                 .price(bookDto.getPrice())
                 .author(bookDto.getAuthor())
                 .tag(tag)

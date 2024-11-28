@@ -11,10 +11,10 @@ import java.util.List;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
     //管理员统计书的销量
-    @Query("SELECT new com.example.bookstore.mainService.dto.SalesDto(oi.book.bid, oi.book.name, oi.book.imagePath, SUM(oi.amount)) " +
+    @Query("SELECT new com.example.bookstore.mainService.dto.SalesDto(oi.book.bid, oi.book.name, SUM(oi.amount)) " +
             "FROM OrderItem oi " +
             "WHERE oi.createOn BETWEEN :startTime AND :endTime " +
-            "GROUP BY oi.book.bid, oi.book.name, oi.book.imagePath")
+            "GROUP BY oi.book.bid, oi.book.name")
     List<SalesDto> findSalesByCreateOnBetween(
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);

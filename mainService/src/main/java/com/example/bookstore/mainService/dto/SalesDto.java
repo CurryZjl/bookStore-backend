@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class SalesDto {
     private long bid;
     private String name;
-    private String imagePath;
     private long amountAll;
 }

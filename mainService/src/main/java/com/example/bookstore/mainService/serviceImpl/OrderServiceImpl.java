@@ -30,6 +30,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final BookService bookService;
     private final CartItemService cartItemService;
+    private final OrderItemMapper orderItemMapper;
+
+    //TODO::修改OrderRepository为OrderDao，使得拿取到的OrderItem的Book的image不为空
 
     @Override
     public Page<OrderDto> getOrdersByUid(long id, Pageable pageable) {
@@ -121,7 +124,7 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderDto mapToOrderDto(Order order){
         List<OrderItemDto> orderItemDtos = order.getOrderItems().stream()
-                .map(OrderItemMapper::mapToOrderItemDto)
+                .map(orderItemMapper::mapToOrderItemDto)
                 .collect(Collectors.toList());
         return OrderDto.builder()
                 .uid(order.getUid())

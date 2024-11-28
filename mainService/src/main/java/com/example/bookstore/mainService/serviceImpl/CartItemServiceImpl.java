@@ -12,6 +12,8 @@ import com.example.bookstore.mainService.utils.SessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,10 +30,17 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public List<CartItemDto> findCartItemsByUid(long uid) {
-        List<CartItem> cartItems = this.cartItemRepository.findCartItemsByUid(uid);
-        return cartItems.stream()
-                .map(this::mapToCartItemDto)
-                .collect(Collectors.toList());
+        try{
+            List<CartItem> cartItems = this.cartItemRepository.findCartItemsByUid(uid);
+            return cartItems.stream()
+                    .map(this::mapToCartItemDto)
+                    .collect(Collectors.toList());
+        }
+       catch (Exception e){
+            System.out.println(e.getMessage());
+            return Collections.emptyList();
+       }
+
     }
 
     @Transactional

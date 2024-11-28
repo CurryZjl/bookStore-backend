@@ -1,5 +1,7 @@
 package com.example.bookstore.mainService.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,22 +19,18 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "books")
-
 public class Book{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bid")
     private long bid;
-    @Lob
-    @Column(name = "imagePath", length = 1000000)
-    private String imagePath;
     private String name;
     private String author;
     private long price;
     private long status;
-    private String intro;
     private String ISBN;
     private boolean deleted;
+
     @ManyToOne
     @JoinColumn(name = "tid")
     private Tag tag;
@@ -42,4 +40,7 @@ public class Book{
     private LocalDateTime createOn;
     @UpdateTimestamp
     private LocalDateTime updateOn;
+
+    @Transient
+    private BookInfo bookInfo;
 }

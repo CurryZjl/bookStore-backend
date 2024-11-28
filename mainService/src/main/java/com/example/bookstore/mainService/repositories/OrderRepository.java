@@ -33,12 +33,12 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     Page<Order> findAllByBookNameLike(@Param("bookName") String bookName, Pageable pageable);
 
     //普通用户统计自己购买书籍的情况
-    @Query("SELECT new com.example.bookstore.mainService.dto.StatBookDto(oi.book.bid, oi.book.imagePath, oi.book.name, SUM(oi.amount), SUM(oi.amount * oi.book.price))"
+    @Query("SELECT new com.example.bookstore.mainService.dto.StatBookDto(oi.book.bid, oi.book.name, SUM(oi.amount), SUM(oi.amount * oi.book.price))"
             + " FROM Order o"
             + " JOIN o.orderItems oi"
             + " WHERE o.uid = :uid"
             + " AND o.createOn BETWEEN :startTime AND :endTime"
-            + " GROUP BY oi.book.bid, oi.book.imagePath, oi.book.name")
+            + " GROUP BY oi.book.bid, oi.book.name")
     List<StatBookDto> findBooksPurchasedByUserInTimeRange(@Param("uid") long uid,
                                                           @Param("startTime") LocalDateTime startTime,
                                                           @Param("endTime") LocalDateTime endTime);

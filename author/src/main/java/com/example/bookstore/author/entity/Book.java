@@ -17,20 +17,15 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "books")
-
 public class Book{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bid")
     private long bid;
-    @Lob
-    @Column(name = "imagePath", length = 1000000)
-    private String imagePath;
     private String name;
     private String author;
     private long price;
     private long status;
-    private String intro;
     private String ISBN;
     private boolean deleted;
     @ManyToOne

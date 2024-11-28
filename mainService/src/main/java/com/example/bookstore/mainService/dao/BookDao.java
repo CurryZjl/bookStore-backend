@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface BookDao {
     Optional<Book> findBookByBid(long id);
     Page<Book> searchBooksByName(String name , Pageable pageable);
+    Book deleteBookByBid(Long id);
+    Book saveBook(Book book, Boolean isMongo);
 }

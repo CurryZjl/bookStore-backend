@@ -76,11 +76,11 @@ public class CacheClient {
         }
     }
 
-    public <R, ID> Optional<R> queryRedis(String keyPrefix, ID id, Class<R> type, Function<ID, Optional<R>> dbFallback, Long time, TimeUnit unit) {
+    public <R, ID> Optional<R> queryRedis(String keyPrefix, ID id, Class<R> type) {
         try{
             boolean connected = isConnected();
             String key = keyPrefix + id;
-            // 1.从redis查询事项缓存
+            // 1.从redis查询缓存
             String json = null;
             if (connected) {
                 try {
@@ -95,38 +95,10 @@ public class CacheClient {
             // 2.判断是否存在
             if (StrUtil.isNotBlank(json)) {
                 // 3.存在，直接返回
-                log.info("后续读写，成功从Redis缓存中得到数据："+ json);
+                log.info("后续读写，成功从Redis缓存中得到数据：");
                 return Optional.of(objectMapper.readValue(json, type));
             }
-            // 判断命中的是否是空值""
-            if (json != null) {
-                // 返回一个错误信息，避免写穿
-                return Optional.empty();
-            }
-
-            // json为null，表示redis miss
-            // 4.不存在，根据id查询数据库
-            Optional<R> opR = dbFallback.apply(id);
-            // 5.不存在，返回错误
-            if (opR.isEmpty()) {
-                // 将空值写入redis
-                if (connected) {
-                    stringRedisTemplate.opsForValue().set(key, "", RedisConstants.CACHE_NULL_TTL, TimeUnit.MINUTES);
-                }
-                // 返回错误信息
-                return Optional.empty();
-            }
-            // 6.存在，写入redis
-            R r = opR.get();
-            log.info("首次读写，从MySQL中得到数据");
-            if (connected) {
-                try {
-                    this.setRedis(key, r, time, unit);
-                } catch (Exception e) {
-                    log.warn(e.getMessage());
-                }
-            }
-            return Optional.of(r);
+            return Optional.empty();
         }catch (Exception e){
             log.warn(e.getMessage());
             return Optional.empty();
