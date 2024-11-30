@@ -12,4 +12,6 @@ public interface BookDao {
     Page<Book> searchBooksByName(String name , Pageable pageable);
     Book deleteBookByBid(Long id);
     Book saveBook(Book book, Boolean isMongo);
+//    List<Book> findBooksByTag(String tagName);
+//    List<Book> testInsert();
 }

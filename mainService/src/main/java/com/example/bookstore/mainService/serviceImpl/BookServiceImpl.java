@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -89,6 +90,18 @@ public class BookServiceImpl implements BookService {
     public BookDto deleteBookByBid(long bid) {
             return mapToBookDto(bookDao.deleteBookByBid(bid));
     }
+
+//    @Override
+//    public List<BookDto> searchBooksByTagName(String tagName) {
+//        List<Book> books = bookDao.findBooksByTag(tagName);
+//        return books.stream().map(BookServiceImpl::mapToBookDto).collect(Collectors.toList());
+//    }
+
+//    @Override
+//    public List<BookDto> testInsert() {
+//        List<Book> books = bookDao.testInsert();
+//        return books.stream().map(BookServiceImpl::mapToBookDto).collect(Collectors.toList());
+//    }
 
     private static BookDto mapToBookDto(Book book){
         BookDto bookDto = BookDto.builder()

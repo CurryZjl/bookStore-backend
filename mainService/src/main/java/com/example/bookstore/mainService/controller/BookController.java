@@ -2,24 +2,24 @@ package com.example.bookstore.mainService.controller;
 
 import com.example.bookstore.mainService.dto.BookDto;
 import com.example.bookstore.mainService.dto.ResponseDto;
+import com.example.bookstore.mainService.neo4jrepository.BookTagRepository;
 import com.example.bookstore.mainService.services.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 //表示该类作为一个controller，他的每个方法返回一个领域对象，而不是view，告诉我们这里需要返回东西给前端
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/books")
 public class BookController {
     private final BookService bookService;
-    @Autowired
-    public BookController(BookService bookService) {
-       this.bookService = bookService;
-    }
+    private final BookTagRepository bookTagRepository;
 
     @GetMapping("/{id}")
     public ResponseDto<BookDto> getBookById(@PathVariable long id){
@@ -70,4 +70,22 @@ public class BookController {
        return new ResponseDto<>(true, "拿取书籍成功", bookPage);
 
    }
+
+//   @GetMapping("/tag")
+//    public ResponseDto<List<BookDto>> getBooksByTag(@RequestParam(required = false, defaultValue = "") String tag){
+//        List<BookDto> bookDtos;
+//        try{
+//            bookDtos = bookService.searchBooksByTagName(tag);
+//        }catch (Exception e){
+//            return new ResponseDto<>(false, e.getMessage(), null);
+//        }
+//        return new ResponseDto<>(true, tag + "查询成功", bookDtos);
+//   }
+//
+//   @GetMapping("/neo4j")
+//    public ResponseDto<List<BookDto>> testNeo4j(){
+//       List<BookDto> bookDtos;
+//       bookDtos = bookService.testInsert();
+//       return new ResponseDto<>(true, "test成功", bookDtos);
+//   }
 }
