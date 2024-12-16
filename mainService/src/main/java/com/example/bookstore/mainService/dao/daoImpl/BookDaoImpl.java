@@ -5,6 +5,8 @@ import com.example.bookstore.mainService.constants.RedisConstants;
 import com.example.bookstore.mainService.dao.BookDao;
 import com.example.bookstore.mainService.entity.Book;
 import com.example.bookstore.mainService.entity.BookInfo;
+import com.example.bookstore.mainService.entity.BookTag;
+import com.example.bookstore.mainService.neo4jrepo.BookTagRepository;
 import com.example.bookstore.mainService.repositories.BookInfoRepository;
 import com.example.bookstore.mainService.repositories.BookRepository;
 import com.example.bookstore.mainService.utils.CacheClient;
@@ -15,6 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +30,7 @@ public class BookDaoImpl implements BookDao {
     private final BookRepository bookRepository;
     private final BookInfoRepository bookInfoRepository;
     private final CacheClient cacheClient;
+    private final BookTagRepository bookTagRepository;
 
     @Override
     public Optional<Book> findBookByBid(long id) {
@@ -92,5 +98,92 @@ public class BookDaoImpl implements BookDao {
         }
         cacheClient.setRedis(RedisConstants.CACHE_BOOK_KEY + book1.getBid(), book1, RedisConstants.CACHE_BOOK_TTL, TimeUnit.MINUTES);
         return book1;
+    }
+
+    @Override
+    public List<Book> findBooksByTag(String tagName) {
+        List<BookTag> bookTags = bookTagRepository.findBookTagsByTagNameLike(tagName);
+        List<Book> resultBooks = new ArrayList<>();
+
+        HashMap<Long, Boolean> bidMap = new HashMap<>();
+        for(BookTag bookTag : bookTags){
+            int size = bookTag.getBookIds().size();
+            for(int i = 0; i < size; i++){
+                Long bid = bookTag.getBookIds().get(i);
+                bidMap.put(bid,true);
+            }
+        }
+
+        //再次查询2跳以内的数据id
+        for(BookTag bookTag : bookTags){
+            String keyN = bookTag.getTagName();
+            List<BookTag> list1 = bookTagRepository.findNodesDistance1(keyN);
+            List<BookTag> list2 = bookTagRepository.findNodesDistance2(keyN);
+            for(BookTag tag : list1){
+                int size = tag.getBookIds().size();
+                for(int i = 0; i < size; i++){
+                    Long bid = tag.getBookIds().get(i);
+                    bidMap.put(bid,true);
+                }
+            }
+            for(BookTag tag2 : list2){
+                int size = tag2.getBookIds().size();
+                for(int i = 0; i < size; i++){
+                    Long bid = tag2.getBookIds().get(i);
+                    bidMap.put(bid,true);
+                }
+            }
+        }
+        for(Long id: bidMap.keySet()){
+            Optional<Book> book = this.findBookByBid(id);
+            if(book.isPresent())
+                resultBooks.add(book.get());
+        }
+
+        return resultBooks;
+    }
+
+        @Override
+    public List<Book> testInsert() {
+        bookTagRepository.deleteAll();
+        BookTag bookTag1 = new BookTag("漫画0") ;
+        BookTag bookTag2 = new BookTag("计算机") ;
+        BookTag bookTag3 = new BookTag("数据结构") ;
+        BookTag bookTag4 = new BookTag("小说") ;
+        BookTag bookTag5 = new BookTag("漫画1") ;
+        BookTag bookTag6 = new BookTag("漫画2") ;
+        BookTag bookTag7 = new BookTag("漫画1.1") ;
+        BookTag bookTag8 = new BookTag("漫画2.1") ;
+        BookTag bookTag9 = new BookTag("漫画3") ;
+
+        bookTag1.addBookID(1L);
+        bookTag1.addBookID(2L);
+        bookTag1.addBookID(4L);
+        bookTag2.addBookID(21L);
+        bookTag2.addBookID(9L);
+        bookTag3.addBookID(10L);
+        bookTag4.addBookID(19L);
+        bookTag5.addBookID(5L);
+        bookTag6.addBookID(6L);
+        bookTag7.addBookID(7L);
+        bookTag8.addBookID(8L);
+        bookTag9.addBookID(3L);
+
+        bookTag1.addChildTag(bookTag5);
+        bookTag1.addChildTag(bookTag6);
+        bookTag5.addChildTag(bookTag7);
+        bookTag6.addChildTag(bookTag8);
+        bookTag2.addChildTag(bookTag3);
+        bookTag7.addChildTag(bookTag9);
+        bookTagRepository.save(bookTag1);
+        bookTagRepository.save(bookTag2);
+        bookTagRepository.save(bookTag3);
+        bookTagRepository.save(bookTag4);
+        bookTagRepository.save(bookTag5);
+        bookTagRepository.save(bookTag6);
+        bookTagRepository.save(bookTag7);
+        bookTagRepository.save(bookTag8);
+        bookTagRepository.save(bookTag9);
+        return this.findBooksByTag("漫画0");
     }
 }

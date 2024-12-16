@@ -90,6 +90,18 @@ public class BookServiceImpl implements BookService {
             return mapToBookDto(bookDao.deleteBookByBid(bid));
     }
 
+    @Override
+    public List<BookDto> searchBooksByTagName(String tagName) {
+        List<Book> books = bookDao.findBooksByTag(tagName);
+        return books.stream().map(BookServiceImpl::mapToBookDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BookDto> testInsertService() {
+        List<Book> books = bookDao.testInsert();
+        return books.stream().map(BookServiceImpl::mapToBookDto).collect(Collectors.toList());
+    }
+
     private static BookDto mapToBookDto(Book book){
         BookDto bookDto = BookDto.builder()
                 .bid(book.getBid())

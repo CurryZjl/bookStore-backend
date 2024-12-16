@@ -12,6 +12,7 @@ spring:
           '[/**]':
             allowed-origins:
               - 'http://localhost:3000'
+              - 'http://localhost:8000'
               - 'http://localhost:8081'
               - 'http://localhost:8082'
             allowed-headers:
