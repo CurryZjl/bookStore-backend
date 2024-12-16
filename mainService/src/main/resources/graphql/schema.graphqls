@@ -1,0 +1,19 @@
+type Query {
+    searchBooks(query: String, pageIndex: Int, pageSize: Int): BookPage
+}
+
+type BookPage {
+    totalPages: Int
+    content: [BookGraphDto]
+}
+
+type BookGraphDto {
+    bid: ID
+    author: String
+    imagePath: String
+    name: String
+    tag: String
+    price: Int
+    status: Int
+    isbn: String
+}

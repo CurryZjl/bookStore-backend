@@ -30,16 +30,16 @@ spring:
 
 
       routes:
-        - id: mainService
-          uri: lb://mainService  # main service
-          predicates:
-            - Path=/api/**
-          filters:
-            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin # 过滤跨域重复
         - id: authorService
           uri: lb://authorService
           predicates:
             - Path=/micro/**
+          filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin # 过滤跨域重复
+        - id: mainService
+          uri: lb://mainService  # main service
+          predicates:
+            - Path=/graphql/**, /api/**
           filters:
             - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin # 过滤跨域重复
         - id: serverless

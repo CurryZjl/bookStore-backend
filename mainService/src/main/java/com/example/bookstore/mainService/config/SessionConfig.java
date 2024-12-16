@@ -16,6 +16,8 @@ public class SessionConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionInterceptor)
                 .addPathPatterns("/**")  //拦截所有请求
+                .excludePathPatterns("/graphql")
+                .excludePathPatterns("/graphql/**")
                 .excludePathPatterns("/api/auth/user")
                 .excludePathPatterns("/api/auth/user/name")
                 .excludePathPatterns("/api/auth/login");
