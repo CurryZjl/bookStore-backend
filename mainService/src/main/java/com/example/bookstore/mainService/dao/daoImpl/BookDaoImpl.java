@@ -9,6 +9,7 @@ import com.example.bookstore.mainService.entity.BookTag;
 import com.example.bookstore.mainService.neo4jrepo.BookTagRepository;
 import com.example.bookstore.mainService.repositories.BookInfoRepository;
 import com.example.bookstore.mainService.repositories.BookRepository;
+import com.example.bookstore.mainService.neo4jrepository.BookTagRepository;
 import com.example.bookstore.mainService.utils.CacheClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class BookDaoImpl implements BookDao {
     private final BookRepository bookRepository;
     private final BookInfoRepository bookInfoRepository;
+    //private final BookTagRepository bookTagRepository;
     private final CacheClient cacheClient;
     private final BookTagRepository bookTagRepository;
 
