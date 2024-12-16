@@ -9,7 +9,6 @@ import com.example.bookstore.mainService.entity.BookTag;
 import com.example.bookstore.mainService.neo4jrepo.BookTagRepository;
 import com.example.bookstore.mainService.repositories.BookInfoRepository;
 import com.example.bookstore.mainService.repositories.BookRepository;
-import com.example.bookstore.mainService.neo4jrepository.BookTagRepository;
 import com.example.bookstore.mainService.utils.CacheClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 public class BookDaoImpl implements BookDao {
     private final BookRepository bookRepository;
     private final BookInfoRepository bookInfoRepository;
-    //private final BookTagRepository bookTagRepository;
     private final CacheClient cacheClient;
     private final BookTagRepository bookTagRepository;
 
@@ -159,7 +157,7 @@ public class BookDaoImpl implements BookDao {
         BookTag bookTag6 = new BookTag("漫画2") ;
         BookTag bookTag7 = new BookTag("漫画1.1") ;
         BookTag bookTag8 = new BookTag("漫画2.1") ;
-        BookTag bookTag9 = new BookTag("漫画3") ;
+        BookTag bookTag9 = new BookTag("漫画1.1.1") ;
 
         bookTag1.addBookID(1L);
         bookTag1.addBookID(2L);

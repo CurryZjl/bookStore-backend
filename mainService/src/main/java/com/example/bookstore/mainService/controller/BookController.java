@@ -2,7 +2,6 @@ package com.example.bookstore.mainService.controller;
 
 import com.example.bookstore.mainService.dto.BookDto;
 import com.example.bookstore.mainService.dto.ResponseDto;
-import com.example.bookstore.mainService.neo4jrepository.BookTagRepository;
 import com.example.bookstore.mainService.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +18,6 @@ import java.util.Optional;
 @RequestMapping("/api/books")
 public class BookController {
     private final BookService bookService;
-    private final BookTagRepository bookTagRepository;
 
     @GetMapping("/{id}")
     public ResponseDto<BookDto> getBookById(@PathVariable long id){
